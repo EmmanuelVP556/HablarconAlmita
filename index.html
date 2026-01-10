@@ -4,25 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comunicador Personalizado</title>
-    <!-- Tailwind CSS -->
+    <title>PlaticandoAndo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class', // Activar modo oscuro manual
-        }
+        tailwind.config = { darkMode: 'class' }
     </script>
-    <!-- Iconos -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             touch-action: manipulation;
             overflow-x: hidden;
-            /* Evitar scroll horizontal por animaciones */
         }
 
-        /* Animación de Corazones de Fondo */
+        /* Animación de Corazones */
         .hearts-container {
             position: fixed;
             top: 0;
@@ -30,9 +25,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            /* Para que no interfieran con los clics */
             z-index: 0;
-            /* Detrás del contenido pero visible */
             overflow: hidden;
         }
 
@@ -40,17 +33,14 @@
             position: absolute;
             bottom: -20px;
             color: rgba(236, 72, 153, 0.3);
-            /* Rosa transparente (Día) */
             animation: floatUp linear forwards;
             font-size: 20px;
             z-index: -1;
         }
 
-        /* En modo oscuro, los corazones brillan como neón */
         .dark .heart {
             color: rgba(244, 114, 182, 0.5);
             text-shadow: 0 0 5px rgba(236, 72, 153, 0.5);
-            /* Efecto Glow */
         }
 
         @keyframes floatUp {
@@ -69,7 +59,7 @@
             }
         }
 
-        /* Estilos de botones y sliders */
+        /* Estilos Botones */
         .btn-speak {
             transition: all 0.2s;
             user-select: none;
@@ -85,12 +75,9 @@
             box-shadow: 0 0 15px rgba(219, 39, 119, 0.5);
         }
 
-        /* Ajuste de playing para modo oscuro */
         .dark .playing {
             background-color: #374151 !important;
-            /* Gris oscuro */
             border-color: #f472b6 !important;
-            /* Rosa claro */
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.4);
             color: #fce7f3 !important;
         }
@@ -100,12 +87,10 @@
         }
     </style>
 </head>
-<!-- AQUI AGREGAMOS dark:bg-gray-950 dark:text-gray-100 PARA EL FONDO OSCURO TOTAL -->
 
 <body id="app-body"
     class="bg-pink-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors duration-300 pb-20 relative">
 
-    <!-- Fondo de corazones -->
     <div id="hearts-bg" class="hearts-container"></div>
 
     <!-- Encabezado -->
@@ -116,18 +101,19 @@
                 <i data-lucide="heart" class="fill-current text-pink-300 animate-pulse"></i>
                 Para mi Almita
             </h1>
-            <!-- Botón Modo Oscuro -->
-            <button onclick="toggleDarkMode()"
-                class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all active:scale-90"
-                title="Cambiar Tema">
-                <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
-            </button>
+            <div class="flex gap-2 items-center">
+                <!-- Botón Modo Oscuro -->
+                <button onclick="toggleDarkMode()"
+                    class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all active:scale-90"
+                    title="Cambiar Tema">
+                    <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto p-4 space-y-4 relative z-10">
-
-        <!-- PANEL DE CONTROL FIJO (Estado, Stop, Volumen, Caja Texto) -->
+        <!-- PANEL DE CONTROL -->
         <div
             class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-xl shadow-sm border border-pink-200 dark:border-gray-700 sticky top-20 z-40 space-y-3 transition-colors duration-300">
 
@@ -153,30 +139,85 @@
                     class="w-full h-2 bg-pink-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
             </div>
 
-            <!-- Fila 3: CAJA DE EMERGENCIA (Backup TTS) -->
-            <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
+            <!-- Fila 3: Caja TTS (CON BOTÓN PLAY CLÁSICO) -->
+            <div id="tts-container" class="pt-2 border-t border-gray-100 dark:border-gray-700">
                 <label class="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-1 block">Escribir para
-                    hablar (Voz Robot):</label>
+                    hablar:</label>
                 <div class="flex gap-2">
                     <input type="text" id="tts-input" placeholder="Escribe aquí..."
                         class="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none text-sm placeholder-gray-400">
-                    <button onclick="speakCustom()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors shadow-lg shadow-blue-500/30">
-                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+
+                    <!-- BOTÓN PLAY (Envía a la nube ocultamente) -->
+                    <button id="send-btn" onclick="speakCustom()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 px-5 rounded-lg transition-colors shadow-lg shadow-blue-500/30 flex items-center justify-center">
+                        <i data-lucide="play" class="w-5 h-5 fill-current"></i>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- GRID DE BOTONES (Audios) -->
-        <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            <!-- Los botones se generan aquí -->
-        </div>
-
+        <!-- GRID DE BOTONES -->
+        <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
     </main>
 
+    <!-- FIREBASE (Solo Envío - Sin UI visual) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3PGt6GErztjnaJN9yZ71qJvm_rswAaiA",
+            authDomain: "amorconectado-ecf61.firebaseapp.com",
+            projectId: "amorconectado-ecf61",
+            storageBucket: "amorconectado-ecf61.firebasestorage.app",
+            messagingSenderId: "682639307028",
+            appId: "1:682639307028:web:a37bf29253a4eb3b9f9201"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
+        const COLLECTION_NAME = 'tts_logs_v2';
+        let currentUser = null;
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                // Conectado silenciosamente
+            }
+        });
+
+        // Función global para enviar
+        window.sendToCloud = async (text) => {
+            if (!currentUser) return;
+            try {
+                const now = new Date();
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME), {
+                    text: text,
+                    timestamp: Date.now(),
+                    dateString: now.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' }),
+                    timeString: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+                    userId: currentUser.uid
+                });
+            } catch (e) { console.error("Error enviando nube:", e); }
+        };
+        initAuth();
+    </script>
+
+    <!-- LÓGICA AUDIO -->
     <script>
-        // --- CONFIGURACIÓN DE TUS AUDIOS (Igual que antes) ---
         const phrases = [
             { label: "Muua", file: "audios/muua.mp3" },
             { label: "Holis Cara De Bolis", file: "audios/holiscaradebolis.mp3" },
@@ -215,182 +256,79 @@
             { label: "Plis plis plis", file: "audios/plisplisplis.mp3" },
             { label: "Mamá", file: "audios/mamá.mp3" },
             { label: "Me puedes traer agüita pliss", file: "audios/Mepuedestraeragüitapliss.mp3" }
-
-
         ];
 
-        // --- VARIABLES GLOBALES ---
         let currentAudio = null;
         let globalVolume = 1.0;
-        const synth = window.speechSynthesis; // Para la voz de robot
-
-        // Elementos UI
+        const synth = window.speechSynthesis;
         const statusText = document.getElementById('status-text');
         const statusIcon = document.getElementById('status-icon');
         const volumeSlider = document.getElementById('volume-slider');
         const themeIcon = document.getElementById('theme-icon');
         const ttsInput = document.getElementById('tts-input');
+        const gridContainer = document.getElementById('grid-container');
 
-        // --- SISTEMA DE AUDIO (MP3) ---
-
-        // Control de Volumen
-        volumeSlider.addEventListener('input', function (e) {
-            globalVolume = e.target.value;
-            if (currentAudio) currentAudio.volume = globalVolume;
-        });
+        volumeSlider.addEventListener('input', (e) => { globalVolume = e.target.value; if (currentAudio) currentAudio.volume = globalVolume; });
 
         function playAudio(filePath, btnElement = null) {
-            stopAll(); // Detener MP3 y Voz Robot
-
+            stopAll();
             currentAudio = new Audio(filePath);
             currentAudio.volume = globalVolume;
-
-            // UI Update
             statusText.innerText = "Reproduciendo...";
-            statusIcon.className = "w-3 h-3 rounded-full bg-pink-500 animate-pulse shadow-[0_0_10px_#ec4899]";
+            statusIcon.className = "w-3 h-3 rounded-full bg-pink-500 animate-pulse";
             if (btnElement) btnElement.classList.add('playing');
-
-            currentAudio.onerror = function () {
-                statusText.innerText = "Error: Falta archivo";
-                statusIcon.className = "w-3 h-3 rounded-full bg-red-500";
-                console.log(`Falta el archivo: ${filePath}`);
-                if (btnElement) btnElement.classList.remove('playing');
-            };
-
-            currentAudio.onended = function () {
-                resetUI(btnElement);
-            };
-
-            currentAudio.play().catch(e => {
-                console.error(e);
-                statusText.innerText = "Error de reproducción";
-            });
+            currentAudio.onerror = () => { statusText.innerText = "Error: Falta archivo"; statusIcon.className = "w-3 h-3 rounded-full bg-red-500"; if (btnElement) btnElement.classList.remove('playing'); };
+            currentAudio.onended = () => resetUI(btnElement);
+            currentAudio.play().catch(e => console.error(e));
         }
 
-        // --- SISTEMA DE VOZ ROBOT (TTS) ---
-
+        // HABLAR + ENVIAR A NUBE
         function speakCustom() {
             const text = ttsInput.value.trim();
             if (!text) return;
+            stopAll();
 
-            stopAll(); // Detener cualquier otro sonido
-
+            // 1. Hablar
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.volume = globalVolume;
-            utterance.rate = 0.9; // Un poco más lento para que se entienda
-
-            // Intentar poner voz en español
+            utterance.rate = 0.9;
             const voices = synth.getVoices();
             const esVoice = voices.find(v => v.lang.includes('es'));
             if (esVoice) utterance.voice = esVoice;
-
-            utterance.onstart = () => {
-                statusText.innerText = "Hablando (Robot)...";
-                statusIcon.className = "w-3 h-3 rounded-full bg-blue-500 animate-pulse";
-            };
-
-            utterance.onend = () => {
-                resetUI();
-            };
-
+            utterance.onstart = () => { statusText.innerText = "Hablando (Robot)..."; statusIcon.className = "w-3 h-3 rounded-full bg-blue-500 animate-pulse"; };
+            utterance.onend = () => resetUI();
             synth.speak(utterance);
+
+            // 2. Enviar a Nube
+            if (window.sendToCloud) window.sendToCloud(text);
+
+            // Opcional: limpiar caja
+            // ttsInput.value = "";
         }
 
-        // Permitir Enter en el input
-        ttsInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') speakCustom();
-        });
+        function stopAll() { if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; } synth.cancel(); document.querySelectorAll('.btn-speak').forEach(b => b.classList.remove('playing')); resetUI(); }
+        function resetUI(btnElement) { statusText.innerText = "A hablar mi vida"; statusIcon.className = "w-3 h-3 rounded-full bg-green-500"; if (btnElement) btnElement.classList.remove('playing'); }
 
-        // --- CONTROLES GENERALES ---
-
-        function stopAll() {
-            // Parar MP3
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                currentAudio = null;
-            }
-            // Parar Voz Robot
-            synth.cancel();
-
-            // Limpiar UI
-            document.querySelectorAll('.btn-speak').forEach(b => b.classList.remove('playing'));
-            resetUI();
-        }
-
-        function resetUI(btnElement) {
-            statusText.innerText = "Lista para el chisme";
-            statusIcon.className = "w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]";
-            if (btnElement) btnElement.classList.remove('playing');
-        }
-
-        // --- MODO OSCURO ---
+        // MODO OSCURO Y CORAZONES
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-
-            // Cambiar icono
-            if (isDark) {
-                themeIcon.setAttribute('data-lucide', 'sun'); // Mostrar sol si es modo oscuro
-            } else {
-                themeIcon.setAttribute('data-lucide', 'moon'); // Mostrar luna si es modo claro
-            }
+            themeIcon.setAttribute('data-lucide', document.documentElement.classList.contains('dark') ? 'sun' : 'moon');
             lucide.createIcons();
         }
-
-        // --- ANIMACIÓN DE CORAZONES ---
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.innerHTML = '❤'; // Carácter de corazón
-
-            // Posición aleatoria horizontal
-            heart.style.left = Math.random() * 100 + 'vw';
-
-            // Tamaño aleatorio
-            const size = Math.random() * 20 + 10 + 'px';
-            heart.style.fontSize = size;
-
-            // Duración aleatoria (entre 3s y 8s)
-            const duration = Math.random() * 5 + 3 + 's';
-            heart.style.animationDuration = duration;
-
-            document.getElementById('hearts-bg').appendChild(heart);
-
-            // Eliminar corazón después de la animación para no saturar memoria
-            setTimeout(() => {
-                heart.remove();
-            }, 8000);
-        }
-
-        // Crear un corazón cada 600ms
+        function createHeart() { const heart = document.createElement('div'); heart.classList.add('heart'); heart.innerHTML = '❤'; heart.style.left = Math.random() * 100 + 'vw'; heart.style.fontSize = (Math.random() * 20 + 10) + 'px'; heart.style.animationDuration = (Math.random() * 5 + 3) + 's'; document.getElementById('hearts-bg').appendChild(heart); setTimeout(() => heart.remove(), 8000); }
         setInterval(createHeart, 600);
 
-
-        // --- GENERADOR DE INTERFAZ ---
         function renderInterface() {
-            const container = document.getElementById('grid-container');
-
             phrases.forEach(item => {
                 const btn = document.createElement('button');
-                // Diseño adaptable Dark Mode
                 btn.className = 'btn-speak bg-white dark:bg-gray-800 hover:bg-pink-50 dark:hover:bg-gray-700 border border-pink-200 dark:border-gray-600 rounded-xl p-2 text-center shadow-sm hover:shadow-md h-24 flex flex-col items-center justify-center gap-1 relative overflow-hidden transition-all duration-300';
-
-                // Nombre archivo limpio
-                const fileNameClean = item.file.replace('audios/', '').replace('.mp3', '');
-
-                btn.innerHTML = `
-                    <span class="font-bold text-gray-800 dark:text-gray-100 text-lg leading-tight px-1 z-10 transition-colors">${item.label}</span>
-                    <span class="text-[9px] text-gray-400 dark:text-gray-500 absolute bottom-1 w-full text-center opacity-60">${fileNameClean}</span>
-                `;
-
+                btn.innerHTML = `<span class="font-bold text-gray-800 dark:text-gray-100 text-lg leading-tight px-1 z-10 transition-colors">${item.label}</span><span class="text-[9px] text-gray-400 dark:text-gray-500 absolute bottom-1 w-full text-center opacity-60">${item.file.replace('audios/', '').replace('.mp3', '')}</span>`;
                 btn.onclick = () => playAudio(item.file, btn);
-                container.appendChild(btn);
+                gridContainer.appendChild(btn);
             });
-
             lucide.createIcons();
         }
-
+        ttsInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') speakCustom(); });
         renderInterface();
     </script>
 </body>
