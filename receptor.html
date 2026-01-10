@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Conversación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -20px;
+            color: rgba(59, 130, 246, 0.2);
+            animation: floatUp linear forwards;
+            font-size: 20px;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Animación de entrada de mensajes */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg-enter {
+            animation: slideIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-blue-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen relative pb-20 transition-colors duration-300">
+
+    <div id="hearts-bg" class="hearts-container"></div>
+
+    <header
+        class="bg-blue-600 dark:bg-gray-800 text-white p-4 shadow-md sticky top-0 z-50 border-b border-blue-700 dark:border-gray-700">
+        <div class="max-w-2xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i data-lucide="message-circle" class="fill-current text-blue-300"></i>
+                Lo que dice mi amor
+            </h1>
+            <div class="flex gap-2">
+                <div id="connection-status"
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500/20"
+                    title="Conectando...">
+                    <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                </div>
+                <button onclick="document.documentElement.classList.toggle('dark')"
+                    class="p-2 rounded-full bg-white/10 hover:bg-white/20">
+                    <i data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto p-4 relative z-10">
+        <!-- Contenedor de lista -->
+        <div
+            class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg border border-blue-100 dark:border-gray-700 p-4 min-h-[500px]">
+
+            <div class="flex justify-between items-center mb-6 pb-2 border-b border-gray-100 dark:border-gray-700">
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Escuchando en vivo
+                </div>
+                <button onclick="clearCloudHistory()"
+                    class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded border border-red-200 transition-colors">
+                    Borrar Historial
+                </button>
+            </div>
+
+            <div id="history-list" class="space-y-4">
+                <div class="text-center text-gray-400 py-20 flex flex-col items-center">
+                    <i data-lucide="loader-2" class="animate-spin mb-2 w-8 h-8 opacity-50"></i>
+                    Esperando mensajes...
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FIREBASE (Solo Lectura) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3PGt6GErztjnaJN9yZ71qJvm_rswAaiA",
+            authDomain: "amorconectado-ecf61.firebaseapp.com",
+            projectId: "amorconectado-ecf61",
+            storageBucket: "amorconectado-ecf61.firebasestorage.app",
+            messagingSenderId: "682639307028",
+            appId: "1:682639307028:web:a37bf29253a4eb3b9f9201"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
+        const COLLECTION_NAME = 'tts_logs_v2';
+
+        const historyList = document.getElementById('history-list');
+        const statusEl = document.getElementById('connection-status');
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                statusEl.innerHTML = '<i data-lucide="wifi" class="w-4 h-4 text-green-300"></i>';
+                statusEl.className = "flex items-center justify-center w-8 h-8 rounded-full bg-green-600";
+                subscribe();
+            } else {
+                statusEl.innerHTML = '<i data-lucide="wifi-off" class="w-4 h-4 text-red-300"></i>';
+                statusEl.className = "flex items-center justify-center w-8 h-8 rounded-full bg-red-600";
+            }
+            lucide.createIcons();
+        });
+
+        function subscribe() {
+            const q = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+            onSnapshot(q, (snapshot) => {
+                const logs = [];
+                snapshot.forEach((doc) => logs.push({ id: doc.id, ...doc.data() }));
+                // Ordenar: más nuevo arriba
+                logs.sort((a, b) => b.timestamp - a.timestamp);
+                render(logs);
+            });
+        }
+
+        function render(logs) {
+            if (logs.length === 0) {
+                historyList.innerHTML = '<div class="text-center text-gray-400 py-20 italic">No hay mensajes aún.</div>';
+                return;
+            }
+            historyList.innerHTML = "";
+            logs.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "msg-enter bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border-l-4 border-blue-500 shadow-sm";
+                div.innerHTML = `
+                    <p class="font-bold text-gray-800 dark:text-gray-100 text-xl leading-snug mb-2">"${item.text}"</p>
+                    <div class="flex justify-between items-center text-xs text-gray-400 font-mono">
+                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${item.dateString}</span>
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${item.timeString}</span>
+                    </div>
+                `;
+                historyList.appendChild(div);
+            });
+            lucide.createIcons();
+
+            // Sonido de notificación suave al llegar nuevo mensaje (si el usuario interactuó antes)
+            try {
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                audio.volume = 0.2;
+                audio.play().catch(() => { }); // Ignorar error si no hay permiso
+            } catch (e) { }
+        }
+
+        window.clearCloudHistory = async () => {
+            if (!confirm("¿Borrar todo el historial de la nube para ambos?")) return;
+            const q = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME);
+            const snapshot = await getDocs(q);
+            snapshot.forEach(async (docSnapshot) => {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, docSnapshot.id));
+            });
+        };
+
+        initAuth();
+
+        // Fondos
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '💙'; // Corazón azul para él
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            heart.style.animationDuration = (Math.random() * 5 + 3) + 's';
+            document.getElementById('hearts-bg').appendChild(heart);
+            setTimeout(() => heart.remove(), 8000);
+        }
+        setInterval(createHeart, 1500);
+    </script>
+</body>
+
+</html>
