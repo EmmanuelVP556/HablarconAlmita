@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +18,10 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             touch-action: manipulation;
-            overflow-x: hidden; /* Evitar scroll horizontal por animaciones */
+            overflow-x: hidden;
+            /* Evitar scroll horizontal por animaciones */
         }
-        
+
         /* Animación de Corazones de Fondo */
         .hearts-container {
             position: fixed;
@@ -27,15 +29,18 @@
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Para que no interfieran con los clics */
-            z-index: 0; /* Detrás del contenido pero visible */
+            pointer-events: none;
+            /* Para que no interfieran con los clics */
+            z-index: 0;
+            /* Detrás del contenido pero visible */
             overflow: hidden;
         }
-        
+
         .heart {
             position: absolute;
             bottom: -20px;
-            color: rgba(236, 72, 153, 0.3); /* Rosa transparente (Día) */
+            color: rgba(236, 72, 153, 0.3);
+            /* Rosa transparente (Día) */
             animation: floatUp linear forwards;
             font-size: 20px;
             z-index: -1;
@@ -43,14 +48,25 @@
 
         /* En modo oscuro, los corazones brillan como neón */
         .dark .heart {
-            color: rgba(244, 114, 182, 0.5); 
-            text-shadow: 0 0 5px rgba(236, 72, 153, 0.5); /* Efecto Glow */
+            color: rgba(244, 114, 182, 0.5);
+            text-shadow: 0 0 5px rgba(236, 72, 153, 0.5);
+            /* Efecto Glow */
         }
 
         @keyframes floatUp {
-            0% { transform: translateY(0) scale(0.5); opacity: 0; }
-            20% { opacity: 0.8; }
-            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1.5);
+                opacity: 0;
+            }
         }
 
         /* Estilos de botones y sliders */
@@ -58,18 +74,23 @@
             transition: all 0.2s;
             user-select: none;
         }
+
         .btn-speak:active {
             transform: scale(0.95);
         }
+
         .playing {
             border-color: #db2777 !important;
             background-color: #fdf2f8 !important;
             box-shadow: 0 0 15px rgba(219, 39, 119, 0.5);
         }
+
         /* Ajuste de playing para modo oscuro */
         .dark .playing {
-            background-color: #374151 !important; /* Gris oscuro */
-            border-color: #f472b6 !important; /* Rosa claro */
+            background-color: #374151 !important;
+            /* Gris oscuro */
+            border-color: #f472b6 !important;
+            /* Rosa claro */
             box-shadow: 0 0 20px rgba(244, 114, 182, 0.4);
             color: #fce7f3 !important;
         }
@@ -80,20 +101,25 @@
     </style>
 </head>
 <!-- AQUI AGREGAMOS dark:bg-gray-950 dark:text-gray-100 PARA EL FONDO OSCURO TOTAL -->
-<body id="app-body" class="bg-pink-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors duration-300 pb-20 relative">
+
+<body id="app-body"
+    class="bg-pink-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors duration-300 pb-20 relative">
 
     <!-- Fondo de corazones -->
     <div id="hearts-bg" class="hearts-container"></div>
 
     <!-- Encabezado -->
-    <header class="bg-pink-600 dark:bg-gray-900 text-white p-4 shadow-md sticky top-0 z-50 transition-colors duration-300 border-b border-pink-700 dark:border-gray-800">
+    <header
+        class="bg-pink-600 dark:bg-gray-900 text-white p-4 shadow-md sticky top-0 z-50 transition-colors duration-300 border-b border-pink-700 dark:border-gray-800">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold flex items-center gap-2">
                 <i data-lucide="heart" class="fill-current text-pink-300 animate-pulse"></i>
                 Para mi Almita
             </h1>
             <!-- Botón Modo Oscuro -->
-            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all active:scale-90" title="Cambiar Tema">
+            <button onclick="toggleDarkMode()"
+                class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all active:scale-90"
+                title="Cambiar Tema">
                 <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
             </button>
         </div>
@@ -102,15 +128,20 @@
     <main class="max-w-4xl mx-auto p-4 space-y-4 relative z-10">
 
         <!-- PANEL DE CONTROL FIJO (Estado, Stop, Volumen, Caja Texto) -->
-        <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-xl shadow-sm border border-pink-200 dark:border-gray-700 sticky top-20 z-40 space-y-3 transition-colors duration-300">
-            
+        <div
+            class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-xl shadow-sm border border-pink-200 dark:border-gray-700 sticky top-20 z-40 space-y-3 transition-colors duration-300">
+
             <!-- Fila 1: Estado y Stop -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div id="status-icon" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] transition-all"></div>
-                    <span id="status-text" class="text-gray-600 dark:text-gray-300 font-medium text-sm md:text-base">A hablar mi vida</span>
+                    <div id="status-icon"
+                        class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] transition-all">
+                    </div>
+                    <span id="status-text" class="text-gray-600 dark:text-gray-300 font-medium text-sm md:text-base">A
+                        hablar mi vida</span>
                 </div>
-                <button onclick="stopAll()" class="text-xs md:text-sm text-red-500 dark:text-red-400 font-bold border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 flex items-center gap-1 transition-colors">
+                <button onclick="stopAll()"
+                    class="text-xs md:text-sm text-red-500 dark:text-red-400 font-bold border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 flex items-center gap-1 transition-colors">
                     <i data-lucide="square" class="w-3 h-3 fill-current"></i> Stop
                 </button>
             </div>
@@ -118,17 +149,19 @@
             <!-- Fila 2: Volumen -->
             <div class="flex items-center gap-3 bg-pink-50 dark:bg-gray-700 p-2 rounded-lg transition-colors">
                 <i data-lucide="volume-2" class="w-5 h-5 text-pink-600 dark:text-pink-400"></i>
-                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" 
-                       class="w-full h-2 bg-pink-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1"
+                    class="w-full h-2 bg-pink-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
             </div>
 
             <!-- Fila 3: CAJA DE EMERGENCIA (Backup TTS) -->
             <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
-                <label class="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-1 block">Escribir para hablar (Voz Robot):</label>
+                <label class="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-1 block">Escribir para
+                    hablar (Voz Robot):</label>
                 <div class="flex gap-2">
-                    <input type="text" id="tts-input" placeholder="Escribe aquí..." 
-                           class="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none text-sm placeholder-gray-400">
-                    <button onclick="speakCustom()" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors shadow-lg shadow-blue-500/30">
+                    <input type="text" id="tts-input" placeholder="Escribe aquí..."
+                        class="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none text-sm placeholder-gray-400">
+                    <button onclick="speakCustom()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors shadow-lg shadow-blue-500/30">
                         <i data-lucide="play" class="w-4 h-4 fill-current"></i>
                     </button>
                 </div>
@@ -178,14 +211,19 @@
             { label: "Ntp En Serio", file: "audios/NtpEnserio.mp3" },
             { label: "Como Diría Dafne:", file: "audios/ComodiriaDafne.mp3" },
             { label: "Por Que Estás En Línea", file: "audios/Porqueestasenlinea.mp3" },
-            { label: "Y Te Ries", file: "audios/yteries.mp3" }
+            { label: "Y Te Ries", file: "audios/yteries.mp3" },
+            { label: "Plis plis plis", file: "audios/plisplisplis.mp3" },
+            { label: "Mamá", file: "audios/mamá.mp3" },
+            { label: "Me puedes traer agüita pliss", file: "audios/Mepuedestraeragüitapliss.mp3" }
+
+
         ];
 
         // --- VARIABLES GLOBALES ---
         let currentAudio = null;
         let globalVolume = 1.0;
         const synth = window.speechSynthesis; // Para la voz de robot
-        
+
         // Elementos UI
         const statusText = document.getElementById('status-text');
         const statusIcon = document.getElementById('status-icon');
@@ -196,7 +234,7 @@
         // --- SISTEMA DE AUDIO (MP3) ---
 
         // Control de Volumen
-        volumeSlider.addEventListener('input', function(e) {
+        volumeSlider.addEventListener('input', function (e) {
             globalVolume = e.target.value;
             if (currentAudio) currentAudio.volume = globalVolume;
         });
@@ -206,20 +244,20 @@
 
             currentAudio = new Audio(filePath);
             currentAudio.volume = globalVolume;
-            
+
             // UI Update
             statusText.innerText = "Reproduciendo...";
             statusIcon.className = "w-3 h-3 rounded-full bg-pink-500 animate-pulse shadow-[0_0_10px_#ec4899]";
-            if(btnElement) btnElement.classList.add('playing');
+            if (btnElement) btnElement.classList.add('playing');
 
-            currentAudio.onerror = function() {
+            currentAudio.onerror = function () {
                 statusText.innerText = "Error: Falta archivo";
                 statusIcon.className = "w-3 h-3 rounded-full bg-red-500";
                 console.log(`Falta el archivo: ${filePath}`);
-                if(btnElement) btnElement.classList.remove('playing');
+                if (btnElement) btnElement.classList.remove('playing');
             };
 
-            currentAudio.onended = function() {
+            currentAudio.onended = function () {
                 resetUI(btnElement);
             };
 
@@ -230,27 +268,27 @@
         }
 
         // --- SISTEMA DE VOZ ROBOT (TTS) ---
-        
+
         function speakCustom() {
             const text = ttsInput.value.trim();
             if (!text) return;
-            
+
             stopAll(); // Detener cualquier otro sonido
 
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.volume = globalVolume;
             utterance.rate = 0.9; // Un poco más lento para que se entienda
-            
+
             // Intentar poner voz en español
             const voices = synth.getVoices();
             const esVoice = voices.find(v => v.lang.includes('es'));
-            if(esVoice) utterance.voice = esVoice;
+            if (esVoice) utterance.voice = esVoice;
 
             utterance.onstart = () => {
                 statusText.innerText = "Hablando (Robot)...";
                 statusIcon.className = "w-3 h-3 rounded-full bg-blue-500 animate-pulse";
             };
-            
+
             utterance.onend = () => {
                 resetUI();
             };
@@ -283,16 +321,16 @@
         function resetUI(btnElement) {
             statusText.innerText = "Lista para el chisme";
             statusIcon.className = "w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]";
-            if(btnElement) btnElement.classList.remove('playing');
+            if (btnElement) btnElement.classList.remove('playing');
         }
 
         // --- MODO OSCURO ---
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
-            
+
             // Cambiar icono
-            if(isDark) {
+            if (isDark) {
                 themeIcon.setAttribute('data-lucide', 'sun'); // Mostrar sol si es modo oscuro
             } else {
                 themeIcon.setAttribute('data-lucide', 'moon'); // Mostrar luna si es modo claro
@@ -305,14 +343,14 @@
             const heart = document.createElement('div');
             heart.classList.add('heart');
             heart.innerHTML = '❤'; // Carácter de corazón
-            
+
             // Posición aleatoria horizontal
             heart.style.left = Math.random() * 100 + 'vw';
-            
+
             // Tamaño aleatorio
             const size = Math.random() * 20 + 10 + 'px';
             heart.style.fontSize = size;
-            
+
             // Duración aleatoria (entre 3s y 8s)
             const duration = Math.random() * 5 + 3 + 's';
             heart.style.animationDuration = duration;
@@ -322,7 +360,7 @@
             // Eliminar corazón después de la animación para no saturar memoria
             setTimeout(() => {
                 heart.remove();
-            }, 8000); 
+            }, 8000);
         }
 
         // Crear un corazón cada 600ms
@@ -337,7 +375,7 @@
                 const btn = document.createElement('button');
                 // Diseño adaptable Dark Mode
                 btn.className = 'btn-speak bg-white dark:bg-gray-800 hover:bg-pink-50 dark:hover:bg-gray-700 border border-pink-200 dark:border-gray-600 rounded-xl p-2 text-center shadow-sm hover:shadow-md h-24 flex flex-col items-center justify-center gap-1 relative overflow-hidden transition-all duration-300';
-                
+
                 // Nombre archivo limpio
                 const fileNameClean = item.file.replace('audios/', '').replace('.mp3', '');
 
@@ -345,15 +383,16 @@
                     <span class="font-bold text-gray-800 dark:text-gray-100 text-lg leading-tight px-1 z-10 transition-colors">${item.label}</span>
                     <span class="text-[9px] text-gray-400 dark:text-gray-500 absolute bottom-1 w-full text-center opacity-60">${fileNameClean}</span>
                 `;
-                
+
                 btn.onclick = () => playAudio(item.file, btn);
                 container.appendChild(btn);
             });
-            
+
             lucide.createIcons();
         }
 
         renderInterface();
     </script>
 </body>
+
 </html>
